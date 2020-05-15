@@ -1,0 +1,2 @@
+# bees-auth
+Bee API
