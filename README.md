@@ -1,2 +1,3 @@
-# bees-auth
-Bee API
+# Bees Auth
+
+Bees Auth API
