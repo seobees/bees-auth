@@ -1,0 +1,65 @@
+{
+  "name": "bees-auth",
+  "version": "0.0.1",
+  "description": "Bees Auth API",
+  "main": "index.js",
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "jsonwebtoken": "8.5.1",
+    "koa": "2.11.0",
+    "koa-bodyparser": "4.3.0",
+    "koa-jwt": "3.6.0",
+    "koa-router": "8.0.8",
+    "lodash": "4.17.15",
+    "rc": "1.2.8",
+    "uuid": "8.0.0"
+  },
+  "devDependencies": {
+    "ava": "3.8.2",
+    "better-npm-run": "0.1.1",
+    "eslint": "7.0.0",
+    "eslint-config-airbnb-base": "14.1.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-import": "2.20.2",
+    "husky": "4.2.5",
+    "lint-staged": "10.2.2",
+    "supertest-koa-agent": "0.3.2"
+  },
+  "scripts": {
+    "test": "better-npm-run test",
+    "start": "node src/app.js",
+    "precommit": "lint-staged",
+    "lint": "eslint src tests"
+  },
+  "betterScripts": {
+    "test": {
+      "command": "ava",
+      "env": {
+        "JWT_connection": "./tests/__data",
+        "JWT_secret": "TEST"
+      }
+    }
+  },
+  "lint-staged": {
+    "*.js": ["eslint"]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seobees/bees-auth.git"
+  },
+  "author": "Igor Cheliadinski <igor@igordev.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seobees/bees-auth/issues"
+  },
+  "homepage": "https://github.com/seobees/bees-auth#readme",
+  "ava": {
+    "files": [
+      "tests/**/*.js",
+      "!tests/__data/**/*.js",
+      "!tests/helpers/**/*.js"
+    ],
+    "babel": false,
+    "compileEnhancements": false
+  }
+}

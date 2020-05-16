@@ -1,0 +1,8 @@
+/node_modules/
+
+# Editors
+.vscode
+.idea
+
+# Temporary files
+*.log
