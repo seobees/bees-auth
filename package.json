@@ -58,8 +58,6 @@
       "tests/**/*.js",
       "!tests/__data/**/*.js",
       "!tests/helpers/**/*.js"
-    ],
-    "babel": false,
-    "compileEnhancements": false
+    ]
   }
 }
