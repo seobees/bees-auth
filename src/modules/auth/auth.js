@@ -3,26 +3,37 @@ const bodyParser = require('koa-bodyparser');
 const { compareSync } = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { find } = require('../../services/user');
+const { find: findUser } = require('../../services/user');
+const { find: findToken, create: saveToken } = require('../../services/refreshToken');
 const config = require('../../config');
 
 const router = new Router();
 
+async function issueTokenPair(userId) {
+  const newRefreshToken = uuidv4();
+  await saveToken({ token: newRefreshToken, userId });
+  return {
+    token: jwt.sign({ id: userId }, config.secret),
+    refreshToken: newRefreshToken
+  }
+}
+
 router.post('/login', bodyParser(), async ctx => {
   const { login, password } = ctx.request.body;
-  const user = await find({ login });
+  const user = await findUser({ login });
   if (!user || !compareSync(password, user.password)) {
-    const error = new Error();
-    error.status = 403;
-    throw error;
+    ctx.throw(403);
   }
-  const refreshToken = uuidv4();
-  ctx.body = {
-    token: jwt.sign({ id: user.id }, config.secret),
-    refreshToken
-  }
-  // ctx.body.token = '';
-  // ctx.body.refreshToken = '';
+  ctx.body = await issueTokenPair(user.id);
 });
+
+router.post('/refresh', bodyParser(), async ctx => {
+  const { refreshToken } = ctx.request.body;
+  const dbToken = await findToken({ token: refreshToken });
+  if (!dbToken) {
+    return;
+  }
+  ctx.body = await issueTokenPair(dbToken.userId)
+})
 
 module.exports = router;

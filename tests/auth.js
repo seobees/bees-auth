@@ -1,6 +1,7 @@
 const test = require('ava');
 const agent = require('supertest-koa-agent');
 const createApp = require('../src/app');
+const issueToken = require('./helpers/issueToken');
 
 const app = agent(createApp());
 
@@ -9,6 +10,13 @@ test('User can successfully login', async t => {
   t.is(res.status, 200);
   t.truthy(typeof res.body.token === 'string');
   t.truthy(typeof res.body.refreshToken === 'string');
+
+  const refreshTokenRes = await app.post('/auth/refresh').send({
+    refreshToken: res.body.refreshToken
+  });
+  t.is(refreshTokenRes.status, 200);
+  t.truthy(typeof refreshTokenRes.body.token === 'string');
+  t.truthy(typeof refreshTokenRes.body.refreshToken === 'string');
 });
 
 test('User gets 403 on invalid credentials', async t => {
@@ -16,8 +24,28 @@ test('User gets 403 on invalid credentials', async t => {
   t.is(res.status, 403);
 });
 
-test.todo('User gets 401 on expired token');
-test.todo('User can refresh access token using refresh token');
+test('User gets 401 on expired token', async t => {
+  const expiredToken = issueToken({ id: 1 }, { expiresIn: '0ms' });
+  const res = await app.get('/users').set('Authorization', `Bearer ${expiredToken}`);
+  t.is(res.status, 401);
+});
+
+test('User can get new access token using refresh token', async t => {
+  const res = await app.post('/auth/refresh').send({
+    refreshToken: 'REFRESH_TOKEN_1'
+  });
+  t.is(res.status, 200);
+  t.truthy(typeof res.body.token === 'string');
+  t.truthy(typeof res.body.refreshToken === 'string');
+});
+
+test('User gets 404 on invalid refresh token', async t => {
+  const res = await app.post('/auth/refresh').send({
+    refreshToken: 'REFRESH_TOKEN_INVALID'
+  });
+  t.is(res.status, 404);
+});
+
 test.todo('User can use refresh token only once');
 test.todo('Refresh tokens become invalid on logout');
 test.todo('Multiple refresh tokens are valid');
